@@ -1,0 +1,37 @@
+name: 'Semantic Version Action'
+description: 'Generate semantic version with patch bump depending on is main repository, tag, push, or pull request.'
+inputs:
+  repository:
+    description: 'Main repository to use without hash at end of build version.'
+    required: true
+  version_major_init:
+    description: 'Version major, v#.x.x; static, except for tag push will be obtain from tag ref.'
+    required: true
+  version_minor_init:
+    description: 'Version minor, vx.#.x; static, except for tag push will be obtain from tag ref.'
+    required: true
+  fetch_tags:
+    description: 'Force fetch tags if previous actions had not done so.'
+    required: false
+    default: false
+outputs:
+  version_previous: 
+    description: "Previous build version; If it's first time to have a tag set, it will lead to init commit."
+    value: ${{ steps.semantic-version-generator.outputs.version_previous }}
+  version_current:
+    description: "Current build version; WARNING: if there's no current tag set, you will need to manually set it or use HEAD instead."
+    value: ${{ steps.semantic-version-generator.outputs.version_current }}
+runs:
+  using: "composite"
+  steps:
+    - id: semantic-version-generator
+      env:
+        IS_PR: ${{ startsWith(github.ref, 'refs/pull/') }}
+        IS_TAG: ${{ startsWith(github.ref, 'refs/tags/') }}
+        PR_NUM: ${{ github.event.number }}
+        INPUT_VERSION_MAJOR_INIT: ${{ inputs.version_major_init }}
+        INPUT_VERSION_MINOR_INIT: ${{ inputs.version_minor_init }}
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_FETCH_TAGS: ${{ inputs.fetch_tags }}
+      shell: bash
+      run: ${{ github.action_path }}/scripts/semvergen.sh
