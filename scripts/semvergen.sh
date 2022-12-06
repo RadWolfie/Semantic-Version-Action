@@ -15,7 +15,7 @@ then
 else
   target_branch=${GITHUB_REF}
 fi
-#echo "::set-output name=target_branch::${target_branch}"
+#echo "target_branch=${target_branch}" >> $GITHUB_OUTPUT
 echo "::debug::target_branch: ${target_branch}"
 
 total_commits=$(git rev-list --first-parent --count ${target_branch})
@@ -25,7 +25,7 @@ version_patch=${total_commits}
 echo "::debug::target total commits: ${total_commits}"
 
 short_commit_sha=$(git rev-parse --short HEAD)
-#echo "::set-output name=short_commit_sha::${short_commit_sha}"
+#echo "short_commit_sha=${short_commit_sha}" >> $GITHUB_OUTPUT
 echo "::debug::commit sha: ${short_commit_sha}"
 
 # Using tagger date in GitHub Actions may not work correctly, it does work fine locally.
@@ -55,7 +55,7 @@ fi
 
 tag_hash=$(git rev-parse $version_previous)
 tag_offset=$(git rev-list --count ${version_previous}..HEAD)
-echo "::set-output name=tag_offset::${tag_offset}"
+echo "tag_offset=${tag_offset}" >> $GITHUB_OUTPUT
 
 #generate build version
 if [ "${IS_TAG}" == "true" ]
@@ -84,7 +84,7 @@ else
   fi
 fi
 
-echo "::set-output name=version_previous::${version_previous}"
+echo "version_previous=${version_previous}" >> $GITHUB_OUTPUT
 echo version_previous: ${version_previous}
-echo "::set-output name=version_current::${version_current}"
+echo "version_current=${version_current}" >> $GITHUB_OUTPUT
 echo version_current: ${version_current}
